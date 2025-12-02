@@ -266,7 +266,7 @@ class Attack:
     
     def draw(self):
         pygame.draw.rect(self.game.screen, (0, 0, 255), pygame.Rect(self.x, self.y, 30, 30))
-
+        print ("hello")
 
 #This is the code that gets executed when we tell python to run this file.
 pygame.init() #Helps pygame start up, and sets up things like fonts
