@@ -9,6 +9,7 @@ class Game:
         self.running = True #A variable we can use a switch to shut the game off if we need to.
         self.blocks = []
         self.players = []
+        self.attacks = []
         
     def main(self):
         while self.running: #Infinite loop. We will do these things over and over on repeat until our self.running variable gets set to False.
@@ -21,7 +22,13 @@ class Game:
         for event in pygame.event.get(): #For each event pygame has as occuring...
             if event.type == pygame.QUIT: #If that event is the type of event that comes when the user hits the x button....
                 self.running=False #Flips our switch to stop running the game. This closes the game, and the window.
-                
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SLASH:
+                    self.players[0].attack()
+                elif event.key == pygame.K_q:
+                    self.players[1].attack()
+                    
+
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_LEFT] == True:
             self.players[0].move('left')
@@ -31,6 +38,7 @@ class Game:
             self.players[0].move('up')
         elif pressed[pygame.K_DOWN] == True:
             self.players[0].move('down')
+       
         
         if pressed[pygame.K_a] == True:
             self.players[1].move('left')
@@ -45,7 +53,8 @@ class Game:
 
             
     def update(self):
-        pass
+        for attack in self.attacks:
+            attack.move()
 
     def draw(self): #A method Games can do. It draws everything that should be on the screen to the screen, then updates the screen.
         self.screen.fill((0, 0, 0)) #black out the screen. This removes the last drawing we made, so we start with a fresh black canvas.
@@ -53,6 +62,8 @@ class Game:
             block.draw()
         for player in self.players:
             player.draw()
+        for attack in self.attacks:
+            attack.draw()
         pygame.display.update()
 
     def create(self):
@@ -221,6 +232,7 @@ class Player:
         self.speed = 3.2
         self.collide = 0
         self.collide2 = 5
+        self.direction = 'down'
 
     def draw(self):
         if self == self.game.players[0]: 
@@ -228,7 +240,8 @@ class Player:
         if self == self.game.players[1]: 
             pygame.draw.circle(self.game.screen, (255, 0, 0), [self.x +15, self.y+15], 15)
         
-    def move(self, direction):   
+    def move(self, direction):  
+        self.direction = direction
         if direction == 'left':
             self.x = self.x - self.speed
         if direction == 'right':
@@ -248,6 +261,7 @@ class Player:
             if direction == 'down':
                 self.y = self.y - self.speed
             
+            
         
         
     def checkCollideBlock(self):
@@ -257,16 +271,40 @@ class Player:
             if collideX and collideY: # if we are actually colliding
                 return True
         return False
+    
+    def attack(self):
+        self.game.attacks.append(Attack(self.x, self.y, self.game, self.direction))
+
 
 class Attack:
-    def __init__(self, x, y, game):
+    def __init__(self, x, y, game, direction):
         self.x = x
         self.y = y
         self.game = game
+        self.direction = direction
+        self.speed = 3.2
+        
     
     def draw(self):
-        pygame.draw.rect(self.game.screen, (0, 0, 255), pygame.Rect(self.x, self.y, 30, 30))
-        print ("hello")
+        pygame.draw.rect(self.game.screen, (0, 0, 255), pygame.Rect(self.x, self.y, 10, 10))
+        
+    def move(self):
+        if self.direction == 'left':
+            self.x = self.x - self.speed
+        if self.direction == 'right':
+            self.x = self.x + self.speed
+        if self.direction == 'up':
+            self.y = self.y - self.speed
+        if self.direction == 'down':
+            self.y = self.y + self.speed
+    
+    def checkCollideBlock(self):
+        for block in self.game.blocks:
+            collideX = block.x - 30 < self.x < block.x + 10
+            collideY = block.y - 10 < self.y < block.y + 30
+            if collideX and collideY: # if we are actually colliding
+                return True
+        return False
 
 #This is the code that gets executed when we tell python to run this file.
 pygame.init() #Helps pygame start up, and sets up things like fonts
