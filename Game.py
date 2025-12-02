@@ -263,6 +263,9 @@ class Attack:
         self.x = x
         self.y = y
         self.game = game
+    
+    def draw(self):
+        pygame.draw.rect(self.game.screen, (0, 0, 255), pygame.Rect(self.x, self.y, 30, 30))
 
 
 #This is the code that gets executed when we tell python to run this file.
